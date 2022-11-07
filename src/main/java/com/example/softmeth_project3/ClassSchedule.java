@@ -13,6 +13,8 @@ import java.util.Scanner;
  @author Kalrav Pandit
  */
 public class ClassSchedule {
+    private static final int INDEX_ONE = 1, INDEX_TWO = 2;
+    private static final int INDEX_THREE = 3, INDEX_FOUR = 4;
     private static final int CLASS_INTERVAL = 5;
     private FitnessClass [] classes;
     private int numClasses;
@@ -97,6 +99,7 @@ public class ClassSchedule {
 
     /**
      Loads the fitness classes from the corresponding text file into the class schedule.
+     @return whether this was successful based on if the file was found
      */
     public String loadClasses() {
         File classList = new File("./classSchedule.txt");
@@ -109,13 +112,13 @@ public class ClassSchedule {
         while (input.hasNextLine()) {
             String line = input.nextLine();
             String[] splitLine = line.split("\\s+");
-            if (splitLine.length < 4) {
+            if (splitLine.length < INDEX_FOUR) {
                 break;
             }
             String className = splitLine[0];
-            String instructor = splitLine[1];
-            String timeframe = splitLine[2];
-            String location = splitLine[3];
+            String instructor = splitLine[INDEX_ONE];
+            String timeframe = splitLine[INDEX_TWO];
+            String location = splitLine[INDEX_THREE];
             FitnessClass fc = new FitnessClass(className.toUpperCase(), instructor, timeframe, location);
             add(fc);
         }

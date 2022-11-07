@@ -1,23 +1,13 @@
 package com.example.softmeth_project3;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
-import java.util.Scanner;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.scene.control.Alert.AlertType;
 
 /**
- Reads from standard input and tests all classes and actions.
+ Reads from GUI input and tests all classes and actions.
  Allows adding, removing, dropping classes, and checking into classes.
  Allows printing schedules and members based on sort criteria.
  @author William Chen
@@ -31,6 +21,8 @@ public class GymManagerController {
     private static final int NOT_FOUND = -1;
     private static final int MAJORITY_AGE = 18;
     private static final int INDEX_SIX = 6;
+    private static final int INDEX_SEVEN = 7;
+
     private static final int QUARTERLY = 3, YEARLY = 12;
 
     @FXML
@@ -82,7 +74,9 @@ public class GymManagerController {
     private MemberDatabase members = new MemberDatabase();
     private ClassSchedule scheduleClasses = new ClassSchedule();
     /**
-     Runs the input session and reads from standard input until the Q command is entered.
+     Takes in the member data from the GUI and adds a member if all fields are valid + filled.
+     Appends output to message area.
+     @param event the action event from JavaFX
      */
     @FXML
     public void handleAddMember(ActionEvent event) {
@@ -127,6 +121,12 @@ public class GymManagerController {
         result = runAddCommand(split, members);
         messageArea.appendText(result + "\n");
     }
+    /**
+     Takes in the member to remove from the GUI and removes a member if all fields are valid + filled.
+     Handles input and processes to remove method to return result.
+     Appends output to message area.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handleRemoveMember(ActionEvent event) {
         String result;
@@ -162,12 +162,18 @@ public class GymManagerController {
         result = runRemoveCommand(split, members);
         messageArea.appendText(result + "\n");
     }
+    /**
+     Takes in the member to check in from the GUI and checks in a member if all fields are valid + filled.
+     Handles input and processes to check in method to return result.
+     Appends output to message area.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handleClassCheckIn(ActionEvent event) {
         String result;
         String[] split;
         try {
-            split = new String[7];
+            split = new String[INDEX_SEVEN];
             split[INDEX_ONE] = className.getText();
             split[INDEX_TWO] = classInstructor.getText();
             split[INDEX_THREE] = classLocation.getText();
@@ -184,9 +190,9 @@ public class GymManagerController {
             else if (action.equals("Guest")) {
                 split[0] = "CG";
             }
-            for (String s : split) {
-                if (s.isEmpty()) {
-                    messageArea.appendText("Input invalid. Check for empty fields!\n");
+            for (int i = 0; i < split.length; i++) {
+                if (split[i].isEmpty()) {
+                    messageArea.appendText("Input is empty. Check for empty fields!\n");
                     return;
                 }
             }
@@ -196,13 +202,18 @@ public class GymManagerController {
             return;
         }
         catch (Exception e) {
-            result = "Input invalid! Check for empty fields!\n";
-            messageArea.appendText(result);
+            messageArea.appendText("Input invalid! Check for empty fields!\n");
             return;
         }
         result = checkIntoClass(split, members, scheduleClasses);
         messageArea.appendText(result + "\n");
     }
+    /**
+     Takes in the member to drop from the GUI and drops a member if all fields are valid + filled.
+     Handles input and processes to drop method to return result.
+     Appends output to message area.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handleClassDrop(ActionEvent event) {
         String result;
@@ -253,6 +264,7 @@ public class GymManagerController {
      - member is already in the database,
      - or location does not exist.
      @param split The split input line read from standard input.
+     @return result The result of this action
      */
     private String runAddCommand(String[] split, MemberDatabase mb) {
         String firstName = split[INDEX_ONE], location = split[INDEX_FOUR];
@@ -295,6 +307,7 @@ public class GymManagerController {
      Removes a member from the member database given an input string.
      Rejects if member does not exist in the database.
      @param split The split input line read from standard input.
+     @return result The result of this action
      */
     private String runRemoveCommand(String[] split, MemberDatabase mb) {
         String fname = split[INDEX_ONE], lname = split[INDEX_TWO];
@@ -363,6 +376,7 @@ public class GymManagerController {
      @param split The split input line read from standard input.
      @param mb The member database to reference and find a member
      @param classSessions the class session database
+     @return result The result of this action
      */
     private String dropClass(String[] split, MemberDatabase mb, FitnessClass[] classSessions) {
         if (split[0].equals("DG")) {
@@ -399,6 +413,7 @@ public class GymManagerController {
      @param split The split input line read from standard input.
      @param mb The member database to reference and find a member
      @param classSessions the class session database
+     @return result The result of this action
      */
     private String dropGuest(String[] split, MemberDatabase mb, FitnessClass[] classSessions) {
         String classSession = split[INDEX_ONE], location = split[INDEX_THREE],
@@ -445,6 +460,7 @@ public class GymManagerController {
      @param split The split input line of information read from standard input.
      @param mb The member database to reference and find a member
      @param scheduleClasses the class session schedule
+     @return result The result of this action
      */
     private String checkIntoClass(String[] split, MemberDatabase mb, ClassSchedule scheduleClasses) {
         if (split[0].equals("CG")) {
@@ -488,6 +504,7 @@ public class GymManagerController {
      Prints a member from a list of members or classes given a situation read from standard input.
      @param situation The requested order of members or classes
      @param mb The member database to reference and find a member
+     @return result The result of this action
      */
     private String printList(String situation, MemberDatabase mb) {
         if (mb.isEmpty()) {
@@ -519,30 +536,59 @@ public class GymManagerController {
         res += ("-end of list- \n");
         return res;
     }
+    /**
+     Appends output of printing the members as is to message area when button clicked.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handlePrint(ActionEvent event) {
         messageArea.appendText(members.print() + "\n");
     }
+    /**
+     Appends output of printing the members by dates to message area when button clicked.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handlePrintByDates(ActionEvent event) {
         messageArea.appendText(members.printByExpirationDate() + "\n");
     }
+    /**
+     Appends output of printing the members by fee to message area when button clicked.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handlePrintByFee(ActionEvent event) {
         messageArea.appendText(members.printByFees() + "\n");
     }
+    /**
+     Appends output of printing the members by name to message area when button clicked.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handlePrintByName(ActionEvent event) {
         messageArea.appendText(members.printByName() + "\n");
     }
+    /**
+     Appends output of printing the members by county to message area when button clicked.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handlePrintByCounty(ActionEvent event) {
         messageArea.appendText(members.printByCounty() + "\n");
     }
+    /**
+     Appends output of printing fitness classes to message area when button clicked.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handleFitnessClasses(ActionEvent event) {
         messageArea.appendText(scheduleClasses.printFitnessClasses() + "\n");
     }
+    /**
+     Appends output of loading fitness classes to message area when button clicked.
+     Loads the classes into class schedule.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handleLoadFitnessClasses(ActionEvent event) {
         String res;
@@ -560,6 +606,11 @@ public class GymManagerController {
         messageArea.appendText("-fitness classes loaded-\n");
         messageArea.appendText(scheduleClasses.printFitnessClasses() + "\n");
     }
+    /**
+     Appends output of loading members to message area when button clicked.
+     Loads the historical members into the database.
+     @param event the action event from JavaFX
+     */
     @FXML
     public void handleLoadMembers(ActionEvent event) {
         String res;
@@ -578,16 +629,17 @@ public class GymManagerController {
         messageArea.appendText(members.print() + "\n");
     }
 
-        /**
-         Checks in a guest given the member they are under and the class they want to check in to.
-         Rejects if:
-         - member cannot have guests due to too many guests,
-         - member is a standard member and cannot have guests, or
-         - guest is checking in at a different location than membership,
-         @param split The split input line of information read from standard input.
-         @param mb The member database to reference and find a member
-         @param scheduleClasses the class session schedule
-         */
+    /**
+     Checks in a guest given the member they are under and the class they want to check in to.
+     Rejects if:
+     - member cannot have guests due to too many guests,
+     - member is a standard member and cannot have guests, or
+     - guest is checking in at a different location than membership,
+     @param split The split input line of information read from standard input.
+     @param mb The member database to reference and find a member
+     @param scheduleClasses the class session schedule
+     @return result The result of this action
+     */
     private String checkInGuest(String[] split, ClassSchedule scheduleClasses, MemberDatabase mb) {
         String classSession = split[INDEX_ONE], instructor = split[INDEX_TWO],
                 location = split[INDEX_THREE], dob = split[INDEX_SIX],
@@ -629,6 +681,7 @@ public class GymManagerController {
      @param split the split-up string of user input to generate test member
      @param scheduleClasses the schedule of fitness classes
      @param mb The member database to reference and find a member
+     @return result The result of this action
      */
     private String findAndCheckMember(String[] split, ClassSchedule scheduleClasses, MemberDatabase mb) {
         String classSession = split[INDEX_ONE], instructor = split[INDEX_TWO],

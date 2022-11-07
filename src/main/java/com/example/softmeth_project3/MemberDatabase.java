@@ -16,6 +16,8 @@ public class MemberDatabase {
     private static final int NOT_FOUND = -1;
     private static final int INVALID = Integer.MIN_VALUE;
     private static final int GROWTH_FACTOR = 4;
+    private static final int INDEX_ONE = 1, INDEX_TWO = 2;
+    private static final int INDEX_THREE = 3, INDEX_FOUR = 4;
     /**
      Default constructor.
      Initializes a member list of four members with blank members in each entry.
@@ -261,6 +263,7 @@ public class MemberDatabase {
     }
     /**
      Loads the historical members from the corresponding text file into the member database.
+     @return whether this was successful based on if the file was found
      */
     public String loadMembers() {
         File memberList = new File("./memberList.txt");
@@ -275,10 +278,10 @@ public class MemberDatabase {
             String line = input.nextLine();
             String[] splitLine = line.split("\\s+");
             String fname = splitLine[0];
-            String lname = splitLine[1];
-            String dob = splitLine[2];
-            String expiration = splitLine[3];
-            String location = splitLine[4];
+            String lname = splitLine[INDEX_ONE];
+            String dob = splitLine[INDEX_TWO];
+            String expiration = splitLine[INDEX_THREE];
+            String location = splitLine[INDEX_FOUR];
             Member newMember = new Member(fname, lname, new Date(dob), new Date(expiration), location);
             add(newMember);
         }
